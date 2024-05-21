@@ -1,20 +1,20 @@
 import { Router } from 'express';
 import ProductManager from '../Dao/mongomanagers/productManagerMongo.js';
-import CartManager from '../Dao/mongomanagers/cartManagerMongo.js';
+import cartManager from '../Dao/mongomanagers/cartManagerMongo.js';
 import { __dirname } from "../utils.js"
 
-const pm=new ProductManager()
-const cm=new CartManager()
+const pm = new ProductManager()
+const cm = new cartManager()
 const routerV = Router()
 
 let cart = []
 
-routerV.get('/', async (req, res) => {
+routerV.get('/products', async (req, res) => {
     try {
         let { limit, page, sort, category } = req.query
         const options = {
             page: Number(page) || 1,
-            limit: Number(limit) || 3,
+            limit: Number(limit) || 10,
             sort: { price: Number(sort) },
             lean: true
         }

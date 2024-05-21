@@ -1,82 +1,215 @@
-<div class="container m-auto">
-    <nav class="d-flex justify-content-between">
-        <div class="title">
-            <h1>Products</h1>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <form id="filterForm">
+                <h4>Filtros</h4>
+                <div class="form-group">
+                    <label for="query">Categoría:</label>
+                    <input type="text" id="query" name="query" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="availability">Disponibilidad:</label>
+                    <select id="availability" name="availability" class="form-control">
+                        <option value="">Todas</option>
+                        <option value="available">Disponible</option>
+                        <option value="unavailable">No disponible</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sort">Ordenar por precio:</label>
+                    <select id="sort" name="sort" class="form-control">
+                        <option value="">Sin orden</option>
+                        <option value="asc">Ascendente</option>
+                        <option value="desc">Descendente</option>
+                    </select>
+                </div>
+            </form>
         </div>
-        <div class="cart d-flex p-0 mt-2 gap-4 ">
-            <div class="cart-container">
-    <img src="./img/cart.svg" alt="cart" class="cart-icon">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCart">
-        View Cart
-    </button>
+        <div class="col-md-9">
+            <div id="productsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+                {{#each products}}
+                <div class="col mb-4">
+                    <div class="card h-100 bg-light">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-tag"></i> Code: {{this.code}}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">{{this.title}}</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-file-text"></i> Description: {{this.description}}</li>
+                                <li><i class="bi bi-currency-dollar"></i> Price: ${{this.price}}</li>
+                                <li><i class="bi bi-grid"></i> Category: {{this.category}}</li>
+                                <li><i class="bi bi-check-circle"></i> Status: {{this.status}}</li>
+                                <li>
+                                    <i class="bi bi-image"></i> Image: <img src="{{this.thumbnail}}" alt="{{this.title}}" class="img-fluid mt-2">
+                                </li>
+                            </ul>
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success text-lg product" data-value="{{this.stock}}" id="{{this._id}}">Agregar al carrito</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <div id="pagination" class="d-flex justify-content-between mt-4">
+                {{#if hasPrevPage}}
+                <a href="{{prevLink}}" class="btn btn-primary">Prev Page</a>
+                {{else}}
+                <span class="btn btn-secondary disabled">Prev Page</span>
+                {{/if}}
+
+                <span>Page {{page}} of {{totalPages}}</span>
+
+                {{#if hasNextPage}}
+                <a href="{{nextLink}}" class="btn btn-primary">Next Page</a>
+                {{else}}
+                <span class="btn btn-secondary disabled">Next Page</span>
+                {{/if}}
+            </div>
         </div>
-            <!-- Modal -->
-            <div class="modal fade" id="modalCart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Cart</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" id="modalBody">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+</div>
+
+<script>
+document.getElementById('filterForm').addEventListener('change', function() {
+    fetchProducts();
+});
+
+async function fetchProducts(page = 1) {
+    const query = document.getElementById('query').value;
+    const availability = document.getElementById('availability').value;
+    const sort = document.getElementById('sort').value;
+    const limit = 6;
+
+    const url = new URL('/api/products', window.location.origin);
+    url.searchParams.set('query', query);
+    url.searchParams.set('availability', availability);
+    url.searchParams.set('sort', sort);
+    url.searchParams.set('page', page);
+    url.searchParams.set('limit', limit);
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    renderProducts(data.payload);
+    renderPagination(data);
+}
+
+function renderProducts(products) {
+    const container = document.getElementById('productsContainer');
+    container.innerHTML = '';
+
+    products.forEach(product => {
+        const productCard = `
+            <div class="col mb-4">
+                <div class="card h-100 bg-light">
+                    <div class="card-header bg-primary text-white">
+                        <i class="bi bi-tag"></i> Code: ${product.code}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-dark">${product.title}</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-file-text"></i> Description: ${product.description}</li>
+                            <li><i class="bi bi-currency-dollar"></i> Price: $${product.price}</li>
+                            <li><i class="bi bi-grid"></i> Category: ${product.category}</li>
+                            <li><i class="bi bi-check-circle"></i> Status: ${product.status}</li>
+                            <li>
+                                <i class="bi bi-image"></i> Image: <img src="${product.thumbnail}" alt="${product.title}" class="img-fluid mt-2">
+                            </li>
+                        </ul>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-success text-lg product" data-value="${product.stock}" id="${product._id}">Agregar al carrito</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-info" id="cartFinal">
-                Buy Cart
-            </button>
-        </div>
-        </nav>  
-<div class="container mt-5">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
-        {{#each products}}
-        <div class="col mb-4">
-            <div class="card h-100 bg-light">
-                <div class="card-header bg-primary text-white">
-                    <i class="bi bi-tag"></i> Code: {{this.code}}
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title text-white">{{this.title}}</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="bi bi-file-text"></i> Description: {{this.description}}</li>
-                        <li><i class="bi bi-currency-dollar"></i> Price: ${{this.price}}</li>
-                        <li><i class="bi bi-grid"></i> Category: {{this.category}}</li>
-                        <li><i class="bi bi-check-circle"></i> Status: {{this.status}}</li>
-                        <li>
-                            <i class="bi bi-image"></i> Image: <img src="{{this.thumbnail}}" alt="{{this.title}}"
-                                class="img-fluid mt-2">
-                        </li>
-                    </ul>
-                    <div class="text-center mt-3">
-                <a class="btn btn-success text-lg product" id="{{this._id}}" data-value="{{this.stock}}">Agregar al carrito</a>
-            </div>
-                </div>
-            </div>
-        </div>
-        {{/each}}
-    </div>
+        `;
+        container.innerHTML += productCard;
+    });
 
+    document.querySelectorAll('.product').forEach(button => {
+        button.addEventListener('click', addToCart);
+    });
+}
 
-    <div class="container d-flex justify-content-center align-items-center gap-4 p-4">
+function renderPagination(data) {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
 
+    const prevPage = data.hasPrevPage ? `<a href="#" onclick="fetchProducts(${data.prevPage})" class="btn btn-primary">Prev Page</a>` : `<span class="btn btn-secondary disabled">Prev Page</span>`;
+    const nextPage = data.hasNextPage ? `<a href="#" onclick="fetchProducts(${data.nextPage})" class="btn btn-primary">Next Page</a>` : `<span class="btn btn-secondary.disabled">Next Page</span>`;
+    
+    pagination.innerHTML = `
+        ${prevPage}
+        <span>Page ${data.page} of ${data.totalPages}</span>
+        ${nextPage}
+    `;
+}
 
-        {{#if hasPrevPage}}
-        <a class="btn btn-primary px-5" href="{{prevLink}}">prev</a>
+async function addToCart(event) {
+    const productId = event.target.id;
+    const stock = Number(event.target.getAttribute('data-value'));
+    const { value: quantity } = await Swal.fire({
+        title: 'Add quantity',
+        input: 'number',
+        inputAttributes: {
+            autocapitalize: 'off'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Confirm',
+    });
 
-        {{/if}}
+    if (quantity !== null) {
+        const quantityNumber = Number(quantity);
+        if (quantityNumber > 0 && stock >= quantityNumber) {
+            try {
+                const response = await fetch('http://localhost:8080/api/carts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId, quantity: quantityNumber }),
+                });
 
-        {{#if hasNextPage}}
+                if (response.ok) {
+                    const data = await response.json();
+                    Swal.fire({
+                        title: 'Product added successfully',
+                        text: `ID: ${productId} - Quantity: ${quantityNumber}`,
+                        icon: 'success',
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'There was an error adding the product to the cart',
+                        icon: 'error',
+                    });
+                }
+            } catch (error) {
+                console.error('Error al agregar el producto al carrito:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'There was an error adding the product to the cart',
+                    icon: 'error',
+                });
+            }
+        } else if (quantityNumber <= 0) {
+            Swal.fire({
+                title: 'Quantity must be greater than 0',
+                icon: 'warning',
+            });
+        } else {
+            Swal.fire({
+                title: 'Quantity cannot be greater than stock',
+                icon: 'error',
+            });
+        }
+    }
+}
 
-        <a class="btn btn-primary px-5" href="{{nextLink}}">next</a>
-
-        <h3>Page: {{page}}/{{totalPages}}</h3>
-        {{/if}}
-    </div>
-</div>
-</div>
-
-<script src="js/sendCart.js"></script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProducts();
+});
+</script>

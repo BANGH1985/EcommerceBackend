@@ -12,27 +12,27 @@ function updateProductList(productList) {
     let productosHTML = ""
   
     productList.forEach((product) => {
-        productosHTML += `<div class="card bg-secondary mb-3 mx-4 my-4" style="max-width: 20rem;">
-        <div class="card-header bg-primary text-white">code: ${product.code}</div>
-        <div class="card-body">
-            <h4 class="card-title text-white">${product.title}</h4>
-            <p class="card-text">
-            <ul class="card-text">
-            <li>id: ${product._id}</li>
-            <li>description: ${product.description}</li>
-            <li>price: $${product.price}</li>
-            <li>category: ${product.category}</li>
-            <li>status: ${product.status}</li>
-            <li>stock: ${product.stock}</li>
-            thumbnail: <img src="${product.thumbnail}" alt="img" class="img-thumbnail img-fluid">        </ul>
-            </p>
-        </div>
-        <div class="d-flex justify-content-center mb-4">
-        <button type="button" class="btn btn-danger delete-btn" onclick="deleteProduct(${product._id})">Eliminar</button>
-        </div>
-        
-    </div>
-</div>`
+        productosHTML += 
+        `<div class="card bg-secondary mb-3 mx-4 my-4" style="max-width: 20rem;">
+          <div class="card-header bg-primary text-white">code: ${product.code}</div>
+            <div class="card-body">
+                <h4 class="card-title text-white">${product.title}</h4>
+                <p class="card-text">
+                <ul class="card-text">
+                <li>id: ${product._id}</li>
+                <li>description: ${product.description}</li>
+                <li>price: $${product.price}</li>
+                <li>category: ${product.category}</li>
+                <li>status: ${product.status}</li>
+                <li>stock: ${product.stock}</li>
+                thumbnail: <img src="${product.thumbnail}" alt="img" class="img-thumbnail img-fluid">        </ul>
+                </p>
+            </div>
+            <div class="d-flex justify-content-center mb-4">
+            <button type="button" class="btn btn-danger delete-btn" onclick="deleteProduct(${product._id})">Eliminar</button>
+            </div>
+          </div>
+        </div>`
     })
   
     productsDiv .innerHTML = productosHTML

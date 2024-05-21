@@ -1,7 +1,6 @@
 import productsModel from "../models/products.model.js";
 
 export default class ProductManager {
-    
     categories = async () => {
         try {
             const categories = await productsModel.aggregate([

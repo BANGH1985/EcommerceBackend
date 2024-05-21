@@ -1,25 +1,86 @@
 <div class="container mt-5">
-    <h1 class="mb-4">Shopping Cart</h1>
-    {{#if result}}
-        <div class="card">
-            <div class="card-body">
-                <p class="card-text"><strong>Cart ID:</strong> {{result._id}}</p>
-                <ul class="list-group">
-                    {{#each result.products }}
-                        <li class="list-group-item">
-                            <h3 class="mb-2">Title: {{this._id.title}}</h3>
-                            <p class="mb-1">Description: {{this._id.description}}</p>
-                            <p class="mb-1">Category: {{this._id.category}}</p>
-                            <p class="mb-1">Quantity: {{this.quantity}}</p>
-                        </li>
-                    {{/each}}
-                </ul>
-            </div>
-        </div>
+    <h2>Carrito de Compras</h2>
+    {{#if cart.products.length}}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre del Producto</th>
+                <th>ID</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="cart-products">
+            {{#each cart.products}}
+            <tr>
+                <td>{{this.product.title}}</td>
+                <td>{{this.product._id}}</td>
+                <td class="quantity">{{this.quantity}}</td>
+                <td class="price">{{this.product.price}}</td>
+                <td>
+                    <button class="btn btn-danger" onclick="removeProduct('{{this.product._id}}')">Eliminar</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Total</strong></td>
+                <td><strong id="totalQuantity"></strong></td>
+                <td><strong id="totalPrice"></strong></td>
+                <td>
+                    <button class="btn btn-warning" onclick="clearCart()">Vaciar Carrito</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
     {{else}}
-        <div class="alert alert-warning" role="alert">
-            <h4 class="alert-heading">Empty Cart</h4>
-            <p>{{message}}</p>
-        </div>
+    <p>No hay productos en el carrito.</p>
     {{/if}}
 </div>
+
+<script>
+async function removeProduct(productId) {
+    const cartId = "{{cart._id}}";
+    const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+        method: 'DELETE',
+    });
+    if (response.ok) {
+        window.location.reload();
+    } else {
+        alert('Error al eliminar el producto del carrito');
+    }
+}
+
+async function clearCart() {
+    const cartId = "{{cart._id}}";
+    const response = await fetch(`/api/carts/${cartId}`, {
+        method: 'DELETE',
+    });
+    if (response.ok) {
+        window.location.reload();
+    } else {
+        alert('Error al vaciar el carrito');
+    }
+}
+
+function calculateTotals() {
+    const quantities = document.querySelectorAll('.quantity');
+    const prices = document.querySelectorAll('.price');
+    let totalQuantity = 0;
+    let totalPrice = 0;
+
+    quantities.forEach((quantityElement, index) => {
+        const quantity = parseInt(quantityElement.textContent, 10);
+        const price = parseFloat(prices[index].textContent, 10);
+        totalQuantity += quantity;
+        totalPrice += quantity * price;
+    });
+
+    document.getElementById('totalQuantity').textContent = totalQuantity;
+    document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', calculateTotals);
+</script>

@@ -23,7 +23,7 @@ app.set("views", __dirname+"/views")
 app.set("view engine","handlebars")
 //rutas
 app.use("/api",productRoutes)
-app.use("/api",cartRouter)
+app.use("/api/carts",cartRouter)
 app.use('/', viewsRoutes)
 
 const httpServer=app.listen(PORT, () => {
