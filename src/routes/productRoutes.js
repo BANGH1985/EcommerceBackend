@@ -77,7 +77,7 @@ router.delete("/products/:pid", async (req, res) => {
     try {
         const id = req.params.pid;
         const deleteproduct = await manager.deleteProduct(id);
-        res.status(200).json({ status: "success", deleteproduct });
+        res.status(200).json({ status: "success", deleteProduct: deleteproduct });
     } catch (error) {
         res.status(500).json({ status: "error", message: "Internal Server Error", error: error.message });
     }

@@ -45,7 +45,7 @@
                                 </li>
                             </ul>
                             <div class="text-center mt-3">
-                                <button class="btn btn-success text-lg product" data-value="{{this.stock}}" id="{{this._id}}">Agregar al carrito</button>
+                                <button class="btn btn-success text-lg product" data-value="{{this.stock}}" id="{{this.product}}">Agregar al carrito</button>
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,16 @@ document.getElementById('filterForm').addEventListener('change', function() {
     fetchProducts();
 });
 
+let cart;
 async function fetchProducts(page = 1) {
+    const createCart = await fetch('/api/carts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                cart = await createCart.json()
+                console.log(cart)
     const query = document.getElementById('query').value;
     const availability = document.getElementById('availability').value;
     const sort = document.getElementById('sort').value;
@@ -148,6 +157,7 @@ function renderPagination(data) {
     `;
 }
 
+
 async function addToCart(event) {
     const productId = event.target.id;
     const stock = Number(event.target.getAttribute('data-value'));
@@ -165,14 +175,13 @@ async function addToCart(event) {
         const quantityNumber = Number(quantity);
         if (quantityNumber > 0 && stock >= quantityNumber) {
             try {
-                const response = await fetch('http://localhost:8080/api/carts', {
+                const response = await fetch(`/api/carts/${cart._id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ productId, quantity: quantityNumber }),
+                    body: JSON.stringify({ "productId": productId, "quantity": quantityNumber }),
                 });
-
                 if (response.ok) {
                     const data = await response.json();
                     Swal.fire({

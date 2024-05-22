@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmButtonText: 'Confirm',
             });
             if (quantity !== null) {
+                console.log("QUANTITY", quantity);
                 const quantityNumber = Number(quantity);
                 if (quantityNumber > 0 && stock >= quantityNumber) {
                     try {
@@ -23,9 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ productId: product.id, quantity: quantityNumber }),
+                            body: JSON.stringify({ products: [{ _id: product._id, quantity: quantityNumber }] }),
                         });
-
                         if (response.ok) {
                             const data = await response.json();
                             Swal.fire({
