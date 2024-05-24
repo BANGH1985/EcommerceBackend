@@ -9,7 +9,7 @@ const routerV = Router()
 
 let cart = []
 
-routerV.get('/products', async (req, res) => {
+routerV.get('/', async (req, res) => {
     try {
         let { limit, page, sort, category } = req.query
         const options = {
@@ -55,6 +55,19 @@ routerV.get('/products', async (req, res) => {
         return res.render('products', { products: docs, totalPages, prevPage, nextPage, hasNextPage, hasPrevPage, prevLink, nextLink, page, cart: cart.length });
     } catch (error) {
         console.log(error);
+    }
+})
+
+routerV.get('/products/:id', async (req, res) => {
+    try {
+        const product = await pm.getProductById(req.params.id);
+        if (product) {
+            res.render('details', { product });
+        } else {
+            res.status(404).send('Producto no encontrado');
+        }
+    } catch (err) {
+        res.status(500).send('Error al obtener el producto');
     }
 })
 

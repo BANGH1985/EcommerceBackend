@@ -43,11 +43,13 @@ export default class ProductManager {
 
     getProductById = async (id) => {
         try {
-            return await productsModel.findById(id).lean();
+            const product = await productsModel.findById(id).lean();
+            return product;
         } catch (err) {
-            return { error: err.message };
+            console.error('Error al obtener el producto por ID:', err.message);
+            return null;
         }
-    }
+    };
 
     addProduct = async (product) => {
         try {

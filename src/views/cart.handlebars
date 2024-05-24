@@ -12,12 +12,12 @@
             </tr>
         </thead>
         <tbody id="cart-products">
-            {{#each cart.products}}
+            {{#each cart.product}}
             <tr>
                 <td>{{this.product.title}}</td>
-                <td>{{this.product._id}}</td>
+                <td>{{this_id}}</td>
                 <td class="quantity">{{this.quantity}}</td>
-                <td class="price">{{this.product.price}}</td>
+                <td class="price">{{this.price}}</td>
                 <td>
                     <button class="btn btn-danger" onclick="removeProduct('{{this.product._id}}')">Eliminar</button>
                 </td>
@@ -44,65 +44,65 @@
 </div>
 
 <script>
-async function removeProduct(productId) {
-    const cartId = "{{cart._id}}";
-    try {
-        const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
-            method: 'DELETE',
-        });
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            const data = await response.json();
-            showError(data.message);
+    async function removeProduct(productId) {
+        const cartId = "{{cart._id}}";
+        try {
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                showError(data.message);
+            }
+        } catch (error) {
+            showError('Error al eliminar el producto del carrito');
         }
-    } catch (error) {
-        showError('Error al eliminar el producto del carrito');
     }
-}
 
-async function clearCart() {
-    const cartId = "{{cart._id}}";
-    try {
-        const response = await fetch(`/api/carts/${cartId}`, {
-            method: 'DELETE',
-        });
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            const data = await response.json();
-            showError(data.message);
+    async function clearCart() {
+        const cartId = "{{cart._id}}";
+        try {
+            const response = await fetch(`/api/carts/${cartId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                showError(data.message);
+            }
+        } catch (error) {
+            showError('Error al vaciar el carrito');
         }
-    } catch (error) {
-        showError('Error al vaciar el carrito');
     }
-}
 
-function showError(message) {
-    const errorContainer = document.getElementById('errorContainer');
-    const errorMessage = document.getElementById('errorMessage');
-    errorMessage.textContent = message;
-    errorContainer.style.display = 'block';
-}
+    function showError(message) {
+        const errorContainer = document.getElementById('errorContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.textContent = message;
+        errorContainer.style.display = 'block';
+    }
 
-function calculateTotals() {
-    const quantities = document.querySelectorAll('.quantity');
-    const prices = document.querySelectorAll('.price');
-    let totalQuantity = 0;
-    let totalPrice = 0;
+    function calculateTotals() {
+        const quantities = document.querySelectorAll('.quantity');
+        const prices = document.querySelectorAll('.price');
+        let totalQuantity = 0;
+        let totalPrice = 0;
 
-    quantities.forEach((quantityElement, index) => {
-        const quantity = parseInt(quantityElement.textContent, 10);
-        const price = parseFloat(prices[index].textContent, 10);
-        totalQuantity += quantity;
-        totalPrice += quantity * price;
+        quantities.forEach((quantityElement, index) => {
+            const quantity = parseInt(quantityElement.textContent, 10);
+            const price = parseFloat(prices[index].textContent, 10);
+            totalQuantity += quantity;
+            totalPrice += quantity * price;
+        });
+
+        document.getElementById('totalQuantity').textContent = totalQuantity;
+        document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        calculateTotals();
     });
-
-    document.getElementById('totalQuantity').textContent = totalQuantity;
-    document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    calculateTotals();
-});
 </script>

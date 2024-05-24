@@ -1,15 +1,16 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const collection = "messages"
+// Nombre de la colección en la base de datos
+const collectionName = "messages";
 
-const schema = new mongoose.Schema({
+// Definición del esquema para los mensajes
+const messageSchema = new mongoose.Schema({
     user: String,
     message: String,
-    
-},
-{ timestamps: true}
-)
+}, { timestamps: true }); // Añadir timestamps para registrar la fecha y hora de creación y actualización
 
-const messageModel = mongoose.model(collection,schema)
+// Crear el modelo de mensaje utilizando el esquema definido
+const messageModel = mongoose.model(collectionName, messageSchema);
 
-export default messageModel
+// Exportar el modelo para su uso en otras partes del proyecto
+export default messageModel;

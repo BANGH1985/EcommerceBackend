@@ -36,7 +36,7 @@ router.post('/:cid', async (req, res) => {
 // Ruta para obtener un carrito por ID
 router.get('/:cid', async (req, res) => {
     try {
-        const cart = await manager.getCartById(req.params.cid);
+        const cart = await manager.getCartById(req.params.cid)
         if (!cart) {
             return res.status(404).json({ status: 'error', message: 'Cart not found' });
         }

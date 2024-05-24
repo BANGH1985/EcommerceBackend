@@ -36,15 +36,13 @@
                         <div class="card-body">
                             <h5 class="card-title text-dark">{{this.title}}</h5>
                             <ul class="list-unstyled">
-                                <li><i class="bi bi-file-text"></i> Description: {{this.description}}</li>
                                 <li><i class="bi bi-currency-dollar"></i> Price: ${{this.price}}</li>
-                                <li><i class="bi bi-grid"></i> Category: {{this.category}}</li>
-                                <li><i class="bi bi-check-circle"></i> Status: {{this.status}}</li>
                                 <li>
                                     <i class="bi bi-image"></i> Image: <img src="{{this.thumbnail}}" alt="{{this.title}}" class="img-fluid mt-2">
                                 </li>
                             </ul>
                             <div class="text-center mt-3">
+                                <a href=`api/products/{{this._id}}?cid=${cart._id}` class="btn btn-primary">Ver Detalle</a>
                                 <button class="btn btn-success text-lg product" data-value="{{this.stock}}" id="{{this.product}}">Agregar al carrito</button>
                             </div>
                         </div>
@@ -52,16 +50,13 @@
                 </div>
                 {{/each}}
             </div>
-
             <div id="pagination" class="d-flex justify-content-between mt-4">
                 {{#if hasPrevPage}}
                 <a href="{{prevLink}}" class="btn btn-primary">Prev Page</a>
                 {{else}}
                 <span class="btn btn-secondary disabled">Prev Page</span>
                 {{/if}}
-
                 <span>Page {{page}} of {{totalPages}}</span>
-
                 {{#if hasNextPage}}
                 <a href="{{nextLink}}" class="btn btn-primary">Next Page</a>
                 {{else}}
@@ -86,7 +81,6 @@ async function fetchProducts(page = 1) {
                     }
                 })
                 cart = await createCart.json()
-                console.log(cart)
     const query = document.getElementById('query').value;
     const availability = document.getElementById('availability').value;
     const sort = document.getElementById('sort').value;
@@ -120,15 +114,14 @@ function renderProducts(products) {
                     <div class="card-body">
                         <h5 class="card-title text-dark">${product.title}</h5>
                         <ul class="list-unstyled">
-                            <li><i class="bi bi-file-text"></i> Description: ${product.description}</li>
                             <li><i class="bi bi-currency-dollar"></i> Price: $${product.price}</li>
-                            <li><i class="bi bi-grid"></i> Category: ${product.category}</li>
                             <li><i class="bi bi-check-circle"></i> Status: ${product.status}</li>
                             <li>
-                                <i class="bi bi-image"></i> Image: <img src="${product.thumbnail}" alt="${product.title}" class="img-fluid mt-2">
+                                <i class="bi bi-image"></i><img src="${product.thumbnail}" alt="${product.title}" class="img-fluid mt-2">
                             </li>
                         </ul>
                         <div class="text-center mt-3">
+                            <a href="/products/${product._id}" class="btn btn-primary">Ver Detalle</a>
                             <button class="btn btn-success text-lg product" data-value="${product.stock}" id="${product._id}">Agregar al carrito</button>
                         </div>
                     </div>
