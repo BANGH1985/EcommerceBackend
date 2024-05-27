@@ -27,65 +27,57 @@
         </div>
         <div class="col-md-9">
             <div id="productsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
-                {{#each products}}
-                <div class="col mb-4">
-                    <div class="card h-100 bg-light">
-                        <div class="card-header bg-primary text-white">
-                            <i class="bi bi-tag"></i> Code: {{this.code}}
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title text-dark">{{this.title}}</h5>
-                            <ul class="list-unstyled">
-                                <li><i class="bi bi-currency-dollar"></i> Price: ${{this.price}}</li>
-                                <li>
-                                    <i class="bi bi-image"></i> Image: <img src="{{this.thumbnail}}" alt="{{this.title}}" class="img-fluid mt-2">
-                                </li>
-                            </ul>
-                            <div class="text-center mt-3">
-                                <a href=`api/products/{{this._id}}?cid=${cart._id}` class="btn btn-primary">Ver Detalle</a>
-                                <button class="btn btn-success text-lg product" data-value="{{this.stock}}" id="{{this.product}}">Agregar al carrito</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {{/each}}
+                <!-- Los productos serán renderizados aquí -->
             </div>
             <div id="pagination" class="d-flex justify-content-between mt-4">
-                {{#if hasPrevPage}}
-                <a href="{{prevLink}}" class="btn btn-primary">Prev Page</a>
-                {{else}}
-                <span class="btn btn-secondary disabled">Prev Page</span>
-                {{/if}}
-                <span>Page {{page}} of {{totalPages}}</span>
-                {{#if hasNextPage}}
-                <a href="{{nextLink}}" class="btn btn-primary">Next Page</a>
-                {{else}}
-                <span class="btn btn-secondary disabled">Next Page</span>
-                {{/if}}
+                <!-- La paginación será renderizada aquí -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Aquí se mostrarán los detalles del producto -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+let products = []
+let cart = null;
+
 document.getElementById('filterForm').addEventListener('change', function() {
     fetchProducts();
 });
 
-let cart;
+
+async function createCart() {
+    const response = await fetch('/api/carts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    cart = await response.json();
+}
+
 async function fetchProducts(page = 1) {
-    const createCart = await fetch('/api/carts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                cart = await createCart.json()
     const query = document.getElementById('query').value;
     const availability = document.getElementById('availability').value;
     const sort = document.getElementById('sort').value;
     const limit = 6;
-
+    
     const url = new URL('/api/products', window.location.origin);
     url.searchParams.set('query', query);
     url.searchParams.set('availability', availability);
@@ -96,7 +88,8 @@ async function fetchProducts(page = 1) {
     const response = await fetch(url);
     const data = await response.json();
 
-    renderProducts(data.payload);
+    products = data.payload;
+    renderProducts(products);
     renderPagination(data);
 }
 
@@ -112,7 +105,7 @@ function renderProducts(products) {
                         <i class="bi bi-tag"></i> Code: ${product.code}
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title text-dark">${product.title}</h5>
+                        <h5 class="card-title text-dark" id="title">${product.title}</h5>
                         <ul class="list-unstyled">
                             <li><i class="bi bi-currency-dollar"></i> Price: $${product.price}</li>
                             <li><i class="bi bi-check-circle"></i> Status: ${product.status}</li>
@@ -121,7 +114,7 @@ function renderProducts(products) {
                             </li>
                         </ul>
                         <div class="text-center mt-3">
-                            <a href="/products/${product._id}" class="btn btn-primary">Ver Detalle</a>
+                            <a id="${product._id}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showProductDetails(this.id, products)">Ver Detalles</a>
                             <button class="btn btn-success text-lg product" data-value="${product.stock}" id="${product._id}">Agregar al carrito</button>
                         </div>
                     </div>
@@ -140,8 +133,8 @@ function renderPagination(data) {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
 
-    const prevPage = data.hasPrevPage ? `<a href="#" onclick="fetchProducts(${data.prevPage})" class="btn btn-primary">Prev Page</a>` : `<span class="btn btn-secondary disabled">Prev Page</span>`;
-    const nextPage = data.hasNextPage ? `<a href="#" onclick="fetchProducts(${data.nextPage})" class="btn btn-primary">Next Page</a>` : `<span class="btn btn-secondary.disabled">Next Page</span>`;
+    const prevPage = data.hasPrevPage ? `<a href="#" onclick="fetchProducts(${data.prevPage}); return false;" class="btn btn-primary">Prev Page</a>` : `<span class="btn btn-secondary disabled">Prev Page</span>`;
+    const nextPage = data.hasNextPage ? `<a href="#" onclick="fetchProducts(${data.nextPage}); return false;" class="btn btn-primary">Next Page</a>` : `<span class="btn btn-secondary disabled">Next Page</span>`;
     
     pagination.innerHTML = `
         ${prevPage}
@@ -149,7 +142,6 @@ function renderPagination(data) {
         ${nextPage}
     `;
 }
-
 
 async function addToCart(event) {
     const productId = event.target.id;
@@ -176,7 +168,6 @@ async function addToCart(event) {
                     body: JSON.stringify({ "productId": productId, "quantity": quantityNumber }),
                 });
                 if (response.ok) {
-                    const data = await response.json();
                     Swal.fire({
                         title: 'Product added successfully',
                         text: `ID: ${productId} - Quantity: ${quantityNumber}`,
@@ -211,7 +202,46 @@ async function addToCart(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+
+
+function showProductDetails(productId) {
+    // Lógica para obtener los detalles del producto
+    const product = products.find(product => product._id === productId);
+    if (product) {
+        displayProductDetailsModal(product);
+    } else {
+        console.error("Producto no encontrado en la lista de productos recibidos");
+    }
+}
+
+function displayProductDetailsModal(product) {
+    // Actualizar el título del modal
+    const modalTitle = document.getElementById('modalTitle');
+    modalTitle.textContent = product.title;
+
+    // Actualizar el cuerpo del modal con los detalles del producto
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <p><strong>Descripción:</strong> ${product.description}</p>
+        <p><strong>Precio:</strong> $${product.price}</p>
+        <p><strong>ID:</strong> ${product._id}</p>
+        <p><strong>Categoria:</strong> ${product.category}</p>
+        <p><strong>Stock:</strong> ${product.stock}</p>
+        <img src="${product.thumbnail}" alt="${product.title}" class="img-fluid">
+    `;
+
+    // Mostrar el modal
+    const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+    productModal.show()
+    
+}
+
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await createCart();
     fetchProducts();
 });
-</script>
+</script>c
+<script src="/js/sendCart.js"></script>

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addCartButtonHandler = async (productElement) => {
         const stock = Number(productElement.getAttribute('data-value'));
         const productId = productElement.getAttribute('id') || productElement.getAttribute('data-id');
+        const productTitle = productElement.getAttribute('title') || productElement.getAttribute('data-id');
         
         const { value: quantity } = await Swal.fire({
             title: 'Add quantity',
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ products: [{ _id: productId, quantity: quantityNumber }] }),
+                        body: JSON.stringify({ products: [{ product: productId, quantity: quantityNumber, title: productTitle }] }),
                     });
                     if (response.ok) {
                         const data = await response.json();

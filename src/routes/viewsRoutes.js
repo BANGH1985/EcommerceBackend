@@ -58,9 +58,9 @@ routerV.get('/', async (req, res) => {
     }
 })
 
-routerV.get('/products/:id', async (req, res) => {
+routerV.get('/products/:pid', async (req, res) => {
     try {
-        const product = await pm.getProductById(req.params.id);
+        const product = await pm.getProductById(req.params.pid);
         if (product) {
             res.render('details', { product });
         } else {
@@ -71,14 +71,6 @@ routerV.get('/products/:id', async (req, res) => {
     }
 })
 
-routerV.get('/products/inCart', async (req, res) => {
-    const productsInCart = await Promise.all(cart.map(async (product) => {
-        const productDB = await pm.getProductById(product._id);
-        return { title: productDB.title, quantity: product.quantity }
-    }))
-
-    return res.send({ cartLength: cart.length, productsInCart })
-})
 
 routerV.post('/products', async (req, res) => {
     try {
@@ -114,15 +106,5 @@ routerV.get("/chat",(req,res)=>{
     res.render("chat")
 })
 
-routerV.get('/carts/:cid', async (req, res) => {
-    try {
-        const { cid } = req.params
-        const result = await cm.getCartById(cid)
-        if(result === null || typeof(result) === 'string') return res.render('cart', { result: false, message: 'ID not found' });
-        return res.render('cart', { result });
-    } catch (err) {
-        console.log(err);
-    }
-})
 
 export default routerV
