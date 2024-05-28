@@ -3,7 +3,6 @@ const URI ="mongodb+srv://Dante:1985112aA.@cluster0.dr7thbm.mongodb.net/ecommerc
 const connectToDB = () => {
     try {
             mongoose.connect(URI)
-        console.log('connected to DB ecommerce')
     } catch (error) {
         console.log(error)
     }

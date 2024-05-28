@@ -67,13 +67,13 @@ function updateProductList(productList) {
     form.reset()
   })
 
-document.getElementById("delete-btn").addEventListener("click", function () {
-    const deleteidinput = document.getElementById("id-prod")
-    const deleteid = parseInt(deleteidinput.value)
-    socketClient.emit("deleteProduct", deleteid)
-    deleteidinput.value = ""
-  })
+  document.getElementById("delete-btn").addEventListener("click", function () {
+    const deleteidinput = document.getElementById("id-prod");
+    const deleteid = parseInt(deleteidinput.value);
+    socketClient.emit("deleteProduct", deleteid);
+    deleteidinput.value = "";
+});
 
 function deleteProduct(_id) {
-  socketClient.emit("deleteProduct", _id)
+    socketClient.emit("deleteProduct", _id);
 }

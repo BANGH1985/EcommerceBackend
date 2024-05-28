@@ -33,7 +33,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-danger" onclick="removeFromCart('{{this.product._id}}')">Eliminar</button>
+                                    <button type="button" class="btn btn-danger" onclick="removeFromCart('{{../cart._id}}', '{{this.product._id}}')">Eliminar</button>
                                 </td>
                             </tr>
                             {{/each}}
@@ -46,11 +46,14 @@
                     <a class="btn btn-info" href="/">Seguir Comprando...</a>
                 </div>
                 <div class="col text-end">
-                    <button class="btn btn-danger" onclick="emptyCart()">Vaciar carrito</button>
+                    <button class="btn btn-danger" onclick="emptyCart('{{cart._id}}')">Vaciar carrito</button>
                 </div>
             </div>
         {{else}}
-            <h2 class="text-center mt-4">No tienes productos en tu carrito </h2>
+            <div class="col text-end">
+                <h2 class="text-center mt-4">No tienes productos en tu carrito </h2>
+                <a class="btn btn-info" href="/">Seguir Comprando...</a>
+            </div>
         {{/if}}
     </div> 
     <script src="/js/cart.js"></script>

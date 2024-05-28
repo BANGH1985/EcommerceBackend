@@ -1,59 +1,67 @@
-function getCartId() {
-    const cartDiv = document.getElementById('cart')
-    return cartDiv.dataset.cartId
-}
-async function removeFromCart(productId) {
-    const cartId = getCartId()
+async function removeFromCart(cartId, productId) {
     try {
-        const swalResponse = await Swal.fire({
-            title: '¿Estás seguro?',
-            text: '¿Quieres eliminar este producto del carrito?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-        })
+        const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-        if (swalResponse.isConfirmed) {
-            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, { method: 'DELETE' })
-            const data = await response.json()
-            if (data.status === 'success') {
-                await Swal.fire('¡Éxito!', 'Producto eliminado del carrito', 'success')
-                window.location.href = `/api/carts/${cartId}`
-            } else {
-                await Swal.fire('Error', 'No se pudo eliminar el producto del carrito', 'error')
-            }
+        if (response.ok) {
+            Swal.fire({
+                title: 'Producto eliminado',
+                text: 'El producto ha sido eliminado del carrito',
+                icon: 'success',
+            }).then(() => {
+                location.reload(); // Recargar la página para ver los cambios
+            });
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un error al eliminar el producto del carrito',
+                icon: 'error',
+            });
         }
     } catch (error) {
-        console.error('Error al eliminar producto del carrito:', error)
-        await Swal.fire('Error', 'Ocurrió un error al eliminar el producto del carrito', 'error')
+        console.error('Error al eliminar el producto del carrito:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Hubo un error al eliminar el producto del carrito',
+            icon: 'error',
+        });
     }
 }
 
-async function emptyCart() {
-    const cartId = getCartId()
+async function emptyCart(cartId) {
     try {
-        const swalResponse = await Swal.fire({
-            title: '¿Estás seguro?',
-            text: '¿Quieres vaciar completamente el carrito?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, vaciar',
-            cancelButtonText: 'Cancelar',
-        })
+        const response = await fetch(`/api/carts/${cartId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-        if (swalResponse.isConfirmed) {
-            const response = await fetch(`/api/carts/${cartId}`, { method: 'DELETE' })
-            const data = await response.json()
-            if (data.status === 'success') {
-                await Swal.fire('¡Éxito!', 'Carrito vaciado', 'success')
-                window.location.href = `/api/carts/${cartId}`
-            } else {
-                await Swal.fire('Error', 'No se pudo vaciar el carrito', 'error')
-            }
+        if (response.ok) {
+            Swal.fire({
+                title: 'Carrito vaciado',
+                text: 'Todos los productos han sido eliminados del carrito',
+                icon: 'success',
+            }).then(() => {
+                location.reload(); // Recargar la página para ver los cambios
+            });
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un error al vaciar el carrito',
+                icon: 'error',
+            });
         }
     } catch (error) {
-        console.error('Error al vaciar carrito:', error)
-        await Swal.fire('Error', 'Ocurrió un error al vaciar el carrito', 'error')
+        console.error('Error al vaciar el carrito:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Hubo un error al vaciar el carrito',
+            icon: 'error',
+        });
     }
 }

@@ -14,7 +14,6 @@ export default class CartManager {
     getCartById = async (id) => {
         try {
             const cart = await CartModel.findById(id).populate('products').lean();
-            console.log(cart);
             return cart;
         } catch (err) {
             console.error('Error al obtener el carrito por ID:', err.message);
@@ -42,25 +41,26 @@ export default class CartManager {
             const cart = await CartModel.findOneAndUpdate(
                 { _id: cid },
                 { $addToSet: { products: { product, quantity } } },
-                //{ $addToSet: product },
-                    //{ products: { _id: productId, quantity: quantity }, } },
                 { new: true }
             ).populate('products.product')
-            console.log(cart.products);
-            return cart;
+            return cart
         } catch (err) {
-            console.error('Error al agregar el producto al carrito:', err.message);
-            return null;
+            console.error('Error al agregar el producto al carrito:', err.message)
+            return null
         }
     }
 
     deleteProductInCart = async (cid, pid) => {
         try {
-            const cart = await CartModel.findByIdAndUpdate(
-                cid,
-                { $pull: { products: { _id: pid } } },
-                { new: true }
-            );
+            const cart = await CartModel.findById(cid);
+
+            if (!cart) {
+                return null;
+            }
+
+            cart.products = cart.products.filter(item => item.product.toString() !== pid);
+
+            await cart.save();
             return cart;
         } catch (err) {
             console.error('Error al eliminar el producto del carrito:', err.message);
@@ -93,7 +93,15 @@ export default class CartManager {
 
     deleteAllProductsInCart = async (cid) => {
         try {
-            const cart = await CartModel.findByIdAndUpdate(cid, { products: [] }, { new: true });
+            const cart = await CartModel.findById(cid);
+
+            if (!cart) {
+                return null;
+            }
+
+            cart.products = [];
+
+            await cart.save();
             return cart;
         } catch (err) {
             console.error('Error al eliminar todos los productos del carrito:', err.message);

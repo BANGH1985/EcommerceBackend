@@ -67,15 +67,17 @@ router.get('/:cid', async (req, res) => {
 
 // Ruta para eliminar un producto del carrito
 router.delete('/:cid/products/:pid', async (req, res) => {
+    const { cid, pid } = req.params;
     try {
-        const cart = await manager.deleteProductInCart(req.params.cid, req.params.pid);
+        const cart = await manager.deleteProductInCart(cid, pid);
+
         if (!cart) {
-            return res.status(404).json({ status: 'error', message: 'Cart not found' });
+            return res.status(404).json({ message: 'Carrito no encontrado' });
         }
-        res.status(200).json({ status: 'success', message: 'Product removed' });
+
+        res.status(200).json(cart);
     } catch (error) {
-        console.error('Error al eliminar un producto del carrito:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        res.status(500).json({ message: 'Error al eliminar el producto del carrito', error });
     }
 });
 
@@ -97,14 +99,16 @@ router.put('/:cid/products/:pid', async (req, res) => {
 // Ruta para eliminar todos los productos del carrito
 router.delete('/:cid', async (req, res) => {
     try {
-        const cart = await CartManager.deleteAllProductsInCart(req.params.cid);
+        const cart = await manager.deleteAllProductsInCart(req.params.cid);
+
         if (!cart) {
-            return res.status(404).json({ status: 'error', message: 'Cart not found' });
+            return res.status(404).json({ message: 'Carrito no encontrado' });
         }
-        res.status(200).json({ status: 'success', message: 'Cart cleared' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+
+        res.status(200).json({ message: 'Carrito vaciado', cart });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al vaciar el carrito', error });
     }
 });
 
