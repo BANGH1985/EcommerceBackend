@@ -14,8 +14,7 @@ export default class CartManager {
     getCartById = async (id) => {
         try {
             const cart = await CartModel.findById(id).populate('products').lean();
-            //console.log(JSON.stringify(cart, null));
-            console.log(cart.products[0]);
+            console.log(cart);
             return cart;
         } catch (err) {
             console.error('Error al obtener el carrito por ID:', err.message);
@@ -25,7 +24,7 @@ export default class CartManager {
 
     addCart = async (products) => {
         try {
-            const existingCart = await CartModel.findOne();
+            const existingCart = await CartModel.findOne().lean();
             if (existingCart) {
                 return existingCart;
             }

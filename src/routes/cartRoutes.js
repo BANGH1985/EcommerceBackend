@@ -1,10 +1,21 @@
 import { Router } from 'express';
 import CartManager from "../Dao/mongomanagers/cartManagerMongo.js";
 import ProductManager from '../Dao/mongomanagers/productManagerMongo.js';
+import cartModel from '../Dao/models/carts.model.js';
 
 const router = Router();
 const manager = new CartManager()
 const pm = new ProductManager()
+
+
+const getPopulatedCart = async (cartId) => {
+    try {
+        const cart = await cartModel.findById(cartId).populate('products.product').lean()
+        return cart
+    } catch (error) {
+        throw new Error('Error al obtener el carrito')
+    }
+}
 
 // Ruta para obtener todos los carritos
 router.get('/', async (req, res) => {
@@ -43,18 +54,17 @@ router.post('/:cid', async (req, res) => {
 
 // Ruta para obtener un carrito por ID
 router.get('/:cid', async (req, res) => {
+    const cartId = req.params.cid
     try {
-        const cart = await manager.getCartById(req.params.cid)
-        if (!cart) {
-            return res.status(404).json({ status: 'error', message: 'Cart not found' });
-        }
-        // renderizar la vista 'cart' y pasar el objeto cart como contexto
-        res.render('cart', { cart: cart });
+        const cart = await getPopulatedCart(cartId)
+        res.render('cart', {
+            cart: cart,
+        })
     } catch (error) {
-        console.error('Error al obtener el carrito por ID:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        console.error('Error al obtener el carrito:', error)
+        res.status(500).render('cart', { error: error.message })
     }
-});
+})
 
 // Ruta para eliminar un producto del carrito
 router.delete('/:cid/products/:pid', async (req, res) => {
@@ -67,21 +77,6 @@ router.delete('/:cid/products/:pid', async (req, res) => {
     } catch (error) {
         console.error('Error al eliminar un producto del carrito:', error);
         res.status(500).json({ message: 'Error interno del servidor' });
-    }
-});
-
-// Ruta para actualizar los productos de un carrito
-router.post('/:cid', async (req, res) => {
-    try {
-        const { products } = req.body;
-        const cart = await manager.addPro(req.params.cid, products);
-        if (!cart) {
-            return res.status(404).json({ status: 'error', message: 'Cart not found' });
-        }
-        res.status(200).json({ status: 'success', message: 'Cart updated' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
 });
 

@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ products: [{ product: productId, quantity: quantityNumber, title: productTitle }] }),
+                        body: JSON.stringify({ products: [{ product: productId, quantity: quantityNumber }] }),
                     });
                     if (response.ok) {
                         const data = await response.json();

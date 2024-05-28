@@ -1,44 +1,57 @@
-<div class="container mt-5">
-    <h2>Carrito de Compras</h2>
-    {{#if cart.products.length}}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre del Producto</th>
-                <th>ID</th>
-                <th>Cantidad</th>
-                <th>Precio</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="cart-products">
-            {{#each cart.products}}
-                <tr>
-                    <td>{{this.product.title}}</td>
-                    <td>{{this._id}}</td>
-                    <td class="quantity">{{this.quantity}}</td>
-                    <td class="price">{{this.product.price}}</td>
-                    <td>
-                        <button class="btn btn-danger" onclick="removeProduct('{{this.product._id}}')">Eliminar</button>
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2"><strong>Total</strong></td>
-                <td><strong id="totalQuantity"></strong></td>
-                <td><strong id="totalPrice"></strong></td>
-                <td>
-                    <button class="btn btn-warning" onclick="clearCart()">Vaciar Carrito</button>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    {{else}}
-    <p>No hay productos en el carrito.</p>
-    {{/if}}
-    <div id="errorContainer" class="mt-3" style="display: none;">
-        <div class="alert alert-danger" role="alert" id="errorMessage"></div>
-    </div>
-</div>
+<body>
+    <div id="cart" data-cart-id="{{cart._id}}" class="container mt-5">
+        <h3 class="text-center">Carrito ID: {{cart._id}}</h3>
+        {{#if cart.products.length}}
+            <div class="row mt-4">
+                <div class="col">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Producto</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each cart.products}}
+                            <tr>
+                                <td>
+                                    <a href="/products/{{product._id}}">
+                                        <img class="cartImage" src="{{this.product.thumbnail}}" alt="{{this.product.description}}">
+                                    </a>
+                                    
+                                </td>
+                                <td>{{this.product.title}}</td>
+                                <td>{{this.product.description}}</td>
+                                <td>${{this.product.price}}</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <span class="mx-2">{{this.quantity}}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger" onclick="removeFromCart('{{this.product._id}}')">Eliminar</button>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-end">
+                    <a class="btn btn-info" href="/">Seguir Comprando...</a>
+                </div>
+                <div class="col text-end">
+                    <button class="btn btn-danger" onclick="emptyCart()">Vaciar carrito</button>
+                </div>
+            </div>
+        {{else}}
+            <h2 class="text-center mt-4">No tienes productos en tu carrito </h2>
+        {{/if}}
+    </div> 
+    <script src="/js/cart.js"></script>
+</body>

@@ -1,70 +1,59 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const response = await fetch('http://localhost:8080/api/carts/66542840430ba167de09065a');
-        if (!response.ok) {
-            throw new Error('Failed to fetch cart data');
-        }
-        const cart = await response.json();
-        renderCart(cart);
-    } catch (error) {
-        console.error('Error fetching cart data:', error);
-    }
-});
-
-function renderCart(cart) {
-    const cartTableBody = document.getElementById('cart-products');
-    cartTableBody.innerHTML = ''; 
-    
-    cart.products.forEach(product => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${product.product.title}</td>
-            <td>${product.product._id}</td>
-            <td class="quantity">${product.quantity}</td>
-            <td class="price">${product.product.price}</td>
-            <td>
-                <button class="btn btn-danger" onclick="removeProduct('${product.product._id}', '${cart._id}')">Eliminar</button>
-            </td>
-        `;
-        cartTableBody.appendChild(row);
-    });
-
-    // Calcular y mostrar el total de cantidad y precio
-    const totalQuantity = cart.products.reduce((sum, product) => sum + product.quantity, 0);
-    const totalPrice = cart.products.reduce((sum, product) => sum + product.quantity * product.product.price, 0);
-    
-    document.getElementById('totalQuantity').textContent = totalQuantity;
-    document.getElementById('totalPrice').textContent = totalPrice;
+function getCartId() {
+    const cartDiv = document.getElementById('cart')
+    return cartDiv.dataset.cartId
 }
-
-async function removeProduct(productId, cartId) {
+async function removeFromCart(productId) {
+    const cartId = getCartId()
     try {
-        const response = await fetch(`http://localhost:8080/api/carts/${cartId}/products/${productId}`, {
-            method: 'DELETE'
-        });
-        if (!response.ok) {
-            throw new Error('Failed to remove product from cart');
+        const swalResponse = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¿Quieres eliminar este producto del carrito?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+        })
+
+        if (swalResponse.isConfirmed) {
+            const response = await fetch(`/api/carts/${cartId}/products/${productId}`, { method: 'DELETE' })
+            const data = await response.json()
+            if (data.status === 'success') {
+                await Swal.fire('¡Éxito!', 'Producto eliminado del carrito', 'success')
+                window.location.href = `/carts/${cartId}`
+            } else {
+                await Swal.fire('Error', 'No se pudo eliminar el producto del carrito', 'error')
+            }
         }
-        const result = await response.json();
-        console.log(result);
-        location.reload(); // Recargar la página después de eliminar el producto
     } catch (error) {
-        console.error('Error removing product from cart:', error);
+        console.error('Error al eliminar producto del carrito:', error)
+        await Swal.fire('Error', 'Ocurrió un error al eliminar el producto del carrito', 'error')
     }
 }
 
-async function clearCart(cartId) {
+async function emptyCart() {
+    const cartId = getCartId()
     try {
-        const response = await fetch(`http://localhost:8080/api/carts/${cartId}`, {
-            method: 'DELETE'
-        });
-        if (!response.ok) {
-            throw new Error('Failed to clear cart');
+        const swalResponse = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¿Quieres vaciar completamente el carrito?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, vaciar',
+            cancelButtonText: 'Cancelar',
+        })
+
+        if (swalResponse.isConfirmed) {
+            const response = await fetch(`/api/carts/${cartId}`, { method: 'DELETE' })
+            const data = await response.json()
+            if (data.status === 'success') {
+                await Swal.fire('¡Éxito!', 'Carrito vaciado', 'success')
+                window.location.href = `/carts/${cartId}`
+            } else {
+                await Swal.fire('Error', 'No se pudo vaciar el carrito', 'error')
+            }
         }
-        const result = await response.json();
-        console.log(result);
-        location.reload(); // Recargar la página después de vaciar el carrito
     } catch (error) {
-        console.error('Error clearing cart:', error);
+        console.error('Error al vaciar carrito:', error)
+        await Swal.fire('Error', 'Ocurrió un error al vaciar el carrito', 'error')
     }
 }
