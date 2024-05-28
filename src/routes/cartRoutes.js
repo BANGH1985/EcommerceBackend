@@ -43,7 +43,6 @@ router.post('/:cid', async (req, res) => {
         const productId = req.body.productId;
         const quantity = req.body.quantity;
         const product = await pm.getProductById(productId)
-        console.log(product);
         const cart = await manager.addProductToCart(req.params.cid, product, quantity);
         res.status(200).json(cart);
     } catch (error) {

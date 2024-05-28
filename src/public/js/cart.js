@@ -19,7 +19,7 @@ async function removeFromCart(productId) {
             const data = await response.json()
             if (data.status === 'success') {
                 await Swal.fire('¡Éxito!', 'Producto eliminado del carrito', 'success')
-                window.location.href = `/carts/${cartId}`
+                window.location.href = `/api/carts/${cartId}`
             } else {
                 await Swal.fire('Error', 'No se pudo eliminar el producto del carrito', 'error')
             }
@@ -47,7 +47,7 @@ async function emptyCart() {
             const data = await response.json()
             if (data.status === 'success') {
                 await Swal.fire('¡Éxito!', 'Carrito vaciado', 'success')
-                window.location.href = `/carts/${cartId}`
+                window.location.href = `/api/carts/${cartId}`
             } else {
                 await Swal.fire('Error', 'No se pudo vaciar el carrito', 'error')
             }
