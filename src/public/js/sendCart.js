@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const stock = Number(productElement.getAttribute('data-value'));
         const productId = productElement.getAttribute('id') || productElement.getAttribute('data-id');
         const productTitle = productElement.getAttribute('title') || productElement.getAttribute('data-id');
-        
+
         const { value: quantity } = await Swal.fire({
             title: 'Add quantity',
             input: 'number',
@@ -18,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const quantityNumber = Number(quantity);
             if (quantityNumber > 0 && stock >= quantityNumber) {
                 try {
-                    const response = await fetch('http://localhost:8080/api/carts', {
+                    const response = await fetch(`/api/carts/${cart._id}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ products: [{ product: productId, quantity: quantityNumber }] }),
+                        body: JSON.stringify({ productId, quantity: quantityNumber }),
                     });
                     if (response.ok) {
                         const data = await response.json();
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
         product.addEventListener('click', () => addCartButtonHandler(product));
     });
 
-    // Check if we're on the product details page
     const detailPageAddButton = document.getElementById('add-to-cart');
     if (detailPageAddButton) {
         detailPageAddButton.addEventListener('click', () => addCartButtonHandler(detailPageAddButton));

@@ -57,10 +57,14 @@
 let products = []
 let cart = null;
 
-document.getElementById('filterForm').addEventListener('change', function() {
+document.addEventListener('DOMContentLoaded', async () => {
+    await createCart();
     fetchProducts();
 });
 
+document.getElementById('filterForm').addEventListener('change', function() {
+    fetchProducts();
+});
 
 async function createCart() {
     const response = await fetch('/api/carts', {
@@ -77,7 +81,7 @@ async function fetchProducts(page = 1) {
     const availability = document.getElementById('availability').value;
     const sort = document.getElementById('sort').value;
     const limit = 6;
-    
+
     const url = new URL('/api/products', window.location.origin);
     url.searchParams.set('query', query);
     url.searchParams.set('availability', availability);
@@ -110,11 +114,11 @@ function renderProducts(products) {
                             <li><i class="bi bi-currency-dollar"></i> Price: $${product.price}</li>
                             <li><i class="bi bi-check-circle"></i> Status: ${product.status}</li>
                             <li>
-                                <i class="bi bi-image"></i><img src="${product.thumbnail}" alt="${product.title}" class="img-fluid mt-2">
+                                </i><img src="${product.thumbnail}" alt="${product.title}" class="img-fluid mt-2">
                             </li>
                         </ul>
                         <div class="text-center mt-3">
-                            <a id="${product._id}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showProductDetails(this.id, products)">Ver Detalles</a>
+                            <a id="${product._id}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showProductDetails('${product._id}')">Ver Detalles</a>
                             <button class="btn btn-success text-lg product" data-value="${product.stock}" id="${product._id}">Agregar al carrito</button>
                         </div>
                     </div>
@@ -202,10 +206,7 @@ async function addToCart(event) {
     }
 }
 
-
-
 function showProductDetails(productId) {
-    // Lógica para obtener los detalles del producto
     const product = products.find(product => product._id === productId);
     if (product) {
         displayProductDetailsModal(product);
@@ -215,11 +216,9 @@ function showProductDetails(productId) {
 }
 
 function displayProductDetailsModal(product) {
-    // Actualizar el título del modal
     const modalTitle = document.getElementById('modalTitle');
     modalTitle.textContent = product.title;
 
-    // Actualizar el cuerpo del modal con los detalles del producto
     const modalBody = document.getElementById('modalBody');
     modalBody.innerHTML = `
         <p><strong>Descripción:</strong> ${product.description}</p>
@@ -230,18 +229,22 @@ function displayProductDetailsModal(product) {
         <img src="${product.thumbnail}" alt="${product.title}" class="img-fluid">
     `;
 
-    // Mostrar el modal
     const productModal = new bootstrap.Modal(document.getElementById('productModal'));
-    productModal.show()
-    
+    productModal.show();
+
+    // Cerrar el modal cuando el botón de cerrar es presionado
+    document.querySelector('.btn-close').addEventListener('click', () => {
+        productModal.hide();
+    });
+
+    // Asegurarse de que el modal se oculta correctamente
+    productModal._element.addEventListener('hidden.bs.modal', () => {
+        const modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) {
+            modalBackdrop.remove();
+        }
+    });
 }
 
-
-
-
-document.addEventListener('DOMContentLoaded', async () => {
-    await createCart();
-    fetchProducts();
-});
-</script>c
+</script>
 <script src="/js/sendCart.js"></script>

@@ -4,29 +4,18 @@ import ProductManager from '../Dao/mongomanagers/productManagerMongo.js';
 import cartModel from '../Dao/models/carts.model.js';
 
 const router = Router();
-const manager = new CartManager()
-const pm = new ProductManager()
-
+const manager = new CartManager();
+const pm = new ProductManager();
 
 const getPopulatedCart = async (cartId) => {
     try {
-        const cart = await cartModel.findById(cartId).populate('products.product').lean()
-        return cart
+        const cart = await cartModel.findById(cartId).populate('products.product').lean();
+        return cart;
     } catch (error) {
-        throw new Error('Error al obtener el carrito')
+        throw new Error('Error al obtener el carrito');
     }
-}
+};
 
-// Ruta para obtener todos los carritos
-router.get('/', async (req, res) => {
-    try {
-        const carts = await manager.getCarts();
-        res.json(carts);
-    } catch (error) {
-        console.error('Error al obtener los carritos:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
-    }
-});
 router.post('/', async (req, res) => {  
     try {
         const cart = await manager.addCart([]);
@@ -37,13 +26,32 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Agregar un producto al carrito o crear un nuevo carrito si no existe
 router.post('/:cid', async (req, res) => {
-    try {  
-        const productId = req.body.productId;
-        const quantity = req.body.quantity;
-        const product = await pm.getProductById(productId)
-        const cart = await manager.addProductToCart(req.params.cid, product, quantity);
+    try {
+        const cartId = req.params.cid;
+        const { productId, quantity } = req.body;
+
+        // Obtener el carrito
+        const cart = await cartModel.findById(cartId);
+
+        if (!cart) {
+            return res.status(404).json({ message: 'Carrito no encontrado' });
+        }
+
+        // Verificar si el producto ya está en el carrito
+        const productIndex = cart.products.findIndex(p => p.product.toString() === productId);
+
+        if (productIndex !== -1) {
+            // Si el producto ya existe, sumamos la cantidad
+            cart.products[productIndex].quantity += quantity;
+        } else {
+            // Si el producto no existe, lo agregamos
+            cart.products.push({ product: productId, quantity });
+        }
+
+        // Guardar los cambios en el carrito
+        await cart.save();
+
         res.status(200).json(cart);
     } catch (error) {
         console.error('Error al agregar un producto al carrito:', error);
@@ -51,21 +59,19 @@ router.post('/:cid', async (req, res) => {
     }
 });
 
-// Ruta para obtener un carrito por ID
 router.get('/:cid', async (req, res) => {
-    const cartId = req.params.cid
+    const cartId = req.params.cid;
     try {
-        const cart = await getPopulatedCart(cartId)
+        const cart = await getPopulatedCart(cartId);
         res.render('cart', {
-            cart: cart,
-        })
+            cart,
+        });
     } catch (error) {
-        console.error('Error al obtener el carrito:', error)
-        res.status(500).render('cart', { error: error.message })
+        console.error('Error al obtener el carrito:', error);
+        res.status(500).render('cart', { error: error.message });
     }
-})
+});
 
-// Ruta para eliminar un producto del carrito
 router.delete('/:cid/products/:pid', async (req, res) => {
     const { cid, pid } = req.params;
     try {
@@ -81,7 +87,6 @@ router.delete('/:cid/products/:pid', async (req, res) => {
     }
 });
 
-// Ruta para actualizar la cantidad de un producto en el carrito
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
         const { quantity } = req.body;
@@ -96,7 +101,6 @@ router.put('/:cid/products/:pid', async (req, res) => {
     }
 });
 
-// Ruta para eliminar todos los productos del carrito
 router.delete('/:cid', async (req, res) => {
     try {
         const cart = await manager.deleteAllProductsInCart(req.params.cid);
